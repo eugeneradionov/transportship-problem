@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/eugeneradionov/transportship-problem/models"
 	"github.com/gorilla/mux"
@@ -13,7 +14,7 @@ import (
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", solve).Methods("POST")
-	log.Fatal(http.ListenAndServe(":8080", r))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", (os.Getenv("PORT"))), r))
 }
 
 func solve(w http.ResponseWriter, r *http.Request) {
