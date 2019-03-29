@@ -1,6 +1,10 @@
 ## Heroku app: https://golang-transportship-problem.herokuapp.com/
 
 ```
+coverage: 93.8% of statements
+```
+
+```
 POST https://golang-transportship-problem.herokuapp.com/
 {
     "suppliers": [
