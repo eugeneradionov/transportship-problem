@@ -136,7 +136,7 @@ func TestSolution_checkTransportCost(t *testing.T) {
 	})
 }
 
-func TestSolution_checkBalance(t *testing.T) {
+func TestSolution_fixImbalance(t *testing.T) {
 	type fields struct {
 		ProblemConditions ProblemConditions
 	}
@@ -176,15 +176,20 @@ func TestSolution_checkBalance(t *testing.T) {
 	}
 
 	tests := []struct {
-		name   string
-		fields fields
+		name        string
+		fields      fields
+		wantSupLen  int
+		wantConsLen int
 	}{
 		{fields: fields{
 			ProblemConditions: ProblemConditions{
 				Suppliers: suppliers,
 				Consumers: consumers,
 			},
-		}},
+		},
+			wantSupLen:  3,
+			wantConsLen: 4,
+		},
 		{fields: fields{
 			ProblemConditions: ProblemConditions{
 				Suppliers: []Supplier{
@@ -201,10 +206,19 @@ func TestSolution_checkBalance(t *testing.T) {
 						Stock: 20,
 					},
 				},
+				Consumers: consumers,
+			},
+		},
+			wantSupLen:  3,
+			wantConsLen: 5,
+		},
+		{fields: fields{
+			ProblemConditions: ProblemConditions{
+				Suppliers: suppliers,
 				Consumers: []Consumer{
 					Consumer{
 						ID:     1,
-						Demand: 20,
+						Demand: 30,
 					},
 					Consumer{
 						ID:     2,
@@ -220,30 +234,31 @@ func TestSolution_checkBalance(t *testing.T) {
 					},
 				},
 			},
-		}},
+		},
+			wantSupLen:  4,
+			wantConsLen: 4,
+		},
 	}
 
-	tt := tests[0]
-	t.Run(tt.name, func(t *testing.T) {
-		s := &Solution{
-			ProblemConditions: tt.fields.ProblemConditions,
-		}
-		got := s.checkBalance()
-		if got != nil {
-			t.Errorf("Solution.checkBalance() = \"%v\" want \"%v\"", got, nil)
-		}
-	})
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &Solution{
+				ProblemConditions: tt.fields.ProblemConditions,
+			}
 
-	tt = tests[1]
-	t.Run(tt.name, func(t *testing.T) {
-		s := &Solution{
-			ProblemConditions: tt.fields.ProblemConditions,
-		}
-		got := s.checkBalance()
-		if got == nil {
-			t.Errorf("Solution.checkBalance() = \"%v\" want \"%v\"", got, "error")
-		}
-	})
+			s.fixImbalance()
+
+			supLen := len(s.Suppliers)
+			if supLen != tt.wantSupLen {
+				t.Errorf("Solution.fixImbalance() invalid suppliers length got: %v; want %v", supLen, tt.wantSupLen)
+			}
+
+			consLen := len(s.Consumers)
+			if consLen != tt.wantConsLen {
+				t.Errorf("Solution.fixImbalance() invalid consumers length got: %v; want %v", consLen, tt.wantConsLen)
+			}
+		})
+	}
 }
 
 func TestSolution_Solve(t *testing.T) {
@@ -315,11 +330,6 @@ func TestSolution_Solve(t *testing.T) {
 			Sup:    &Supplier{ID: 1},
 			Cons:   &Consumer{ID: 3},
 			Amount: 10,
-		},
-		transportNode{
-			Sup:    &Supplier{ID: 2},
-			Cons:   &Consumer{ID: 1},
-			Amount: 0,
 		},
 		transportNode{
 			Sup:    &Supplier{ID: 2},
@@ -445,11 +455,6 @@ func TestSolution_createRoute(t *testing.T) {
 			Sup:    &Supplier{ID: 1},
 			Cons:   &Consumer{ID: 3},
 			Amount: 10,
-		},
-		transportNode{
-			Sup:    &Supplier{ID: 2},
-			Cons:   &Consumer{ID: 1},
-			Amount: 0,
 		},
 		transportNode{
 			Sup:    &Supplier{ID: 2},
@@ -584,20 +589,22 @@ func TestSolution_initData(t *testing.T) {
 			}
 			s.initData()
 
-			if s.numSup != 2 {
-				t.Errorf("Solution.initData() = %v, want %v", s.numSup, 2)
+			if s.numSup != len(tt.fields.ProblemConditions.Suppliers) {
+				t.Errorf("Solution.initData() = %v, want %v", s.numSup, len(tt.fields.ProblemConditions.Suppliers))
 			}
 
-			if s.numCons != 2 {
-				t.Errorf("Solution.initData() = %v, want %v", s.numCons, 2)
+			if s.numCons != len(tt.fields.ProblemConditions.Consumers) {
+				t.Errorf("Solution.initData() = %v, want %v", s.numCons, len(tt.fields.ProblemConditions.Consumers))
 			}
 
-			if s.Consumers[0].Demand != 20.0005 {
-				t.Errorf("Solution.initData() s.Consumers[0].Demand = %v, want %v", s.Consumers[0].Demand, 20.0005)
+			want := 20.00001
+			if s.Consumers[0].Demand != want {
+				t.Errorf("Solution.initData() s.Consumers[0].Demand = %v, want %v", s.Consumers[0].Demand, want)
 			}
 
-			if s.Consumers[1].Demand != 10.0005 {
-				t.Errorf("Solution.initData() s.Consumers[1].Demand = %v, want %v", s.Consumers[1].Demand, 10.0005)
+			want = 10.00001
+			if s.Consumers[1].Demand != want {
+				t.Errorf("Solution.initData() s.Consumers[1].Demand = %v, want %v", s.Consumers[1].Demand, want)
 			}
 
 		})

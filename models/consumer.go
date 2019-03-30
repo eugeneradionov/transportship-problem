@@ -1,6 +1,7 @@
 package models
 
 type Consumer struct {
-	ID     int     `json:"id,omitempty"`
-	Demand float64 `json:"demand"`
+	ID      int     `json:"id"`
+	Demand  float64 `json:"demand"`
+	fictive bool
 }

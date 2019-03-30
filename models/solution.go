@@ -6,7 +6,7 @@ import (
 	"math"
 )
 
-const elipsis float64 = 0.001
+const elipsis = 0.00001
 
 type Solution struct {
 	ProblemConditions `json:"-"`
@@ -31,11 +31,7 @@ func NewSolution(cond ProblemConditions) *Solution {
 }
 
 func (s *Solution) Solve() error {
-	err := s.checkBalance()
-	if err != nil {
-		return err
-	}
-
+	s.fixImbalance()
 	s.initData()
 	s.northWest()
 	log.Printf("[INFO] at Solution.Solve(): northWest completed: %v", s.route)
@@ -64,7 +60,7 @@ func (s *Solution) Solve() error {
 	return nil
 }
 
-func (s *Solution) checkBalance() error {
+func (s *Solution) fixImbalance() {
 	balance := 0.0
 
 	for _, sup := range s.Suppliers {
@@ -75,11 +71,11 @@ func (s *Solution) checkBalance() error {
 		balance -= cons.Demand
 	}
 
-	if balance != 0 {
-		return fmt.Errorf("suppliers and consumers are not balanced, Suppliers: %v, Consumers: %v", s.Suppliers, s.Consumers)
+	if balance > 0 {
+		s.Consumers = append(s.Consumers, Consumer{ID: -1, Demand: balance, fictive: true})
+	} else if balance < 0 {
+		s.Suppliers = append(s.Suppliers, Supplier{ID: -1, Stock: -balance, fictive: true})
 	}
-
-	return nil
 }
 
 func (s *Solution) checkTransportCost() error {
@@ -101,10 +97,23 @@ func (s *Solution) initData() {
 	s.numCons = len(s.Consumers)
 
 	for i := range s.Consumers {
-		s.Consumers[i].Demand += elipsis / float64(s.numCons)
+		s.Consumers[i].Demand += elipsis
 	}
 
-	s.Suppliers[1].Stock += elipsis
+	s.Suppliers[s.numSup-1].Stock += elipsis * float64(s.numSup)
+
+	newTransportCost := make([][]float64, s.numSup)
+	for i := range newTransportCost {
+		newTransportCost[i] = make([]float64, s.numCons)
+	}
+
+	for i, row := range s.TransportCost {
+		for j, cost := range row {
+			newTransportCost[i][j] = cost
+		}
+	}
+
+	s.TransportCost = newTransportCost
 
 	s.route = make([][]float64, s.numSup)
 	for i := range s.route {
@@ -261,13 +270,26 @@ func (s *Solution) calcPotentials() error {
 func (s *Solution) createRoute() {
 	for i := 0; i < s.numSup; i++ {
 		for j := 0; j < s.numCons; j++ {
-			s.Cost += math.Round(s.TransportCost[i][j] * s.route[i][j])
-
-			if s.route[i][j] != 0 {
-				s.Route = append(s.Route, transportNode{
-					Sup: &s.Suppliers[i], Cons: &s.Consumers[j], Amount: math.Round(s.route[i][j]),
-				})
+			amount := math.Round(s.route[i][j])
+			if amount == 0 {
+				continue
 			}
+
+			sup := s.Suppliers[i]
+			if sup.fictive {
+				continue
+			}
+
+			cons := s.Consumers[j]
+			if cons.fictive {
+				continue
+			}
+
+			s.Cost += math.Round(s.TransportCost[i][j] * amount)
+
+			s.Route = append(s.Route, transportNode{
+				Sup: &sup, Cons: &cons, Amount: amount,
+			})
 		}
 	}
 }

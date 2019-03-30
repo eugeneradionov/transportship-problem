@@ -1,6 +1,7 @@
 package models
 
 type Supplier struct {
-	ID    int     `json:"id,omitempty"`
-	Stock float64 `json:"stock"`
+	ID      int     `json:"id"`
+	Stock   float64 `json:"stock"`
+	fictive bool
 }
