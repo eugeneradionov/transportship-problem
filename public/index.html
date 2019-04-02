@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="main.css">
+    <link rel="icon" href="favicon.ico">
+    <title>Transportship Problem</title>
+</head>
+
+<body>
+    <div class="container">
+        <!-- PLACEHOLDERS -->
+        <div class="input-group input-group-sm mb-1 d-none" data-role="supplier-placeholder">
+            <div class="input-group-prepend">
+                <span class="input-group-text" data-role="supplier-number">0</span>
+            </div>
+
+            <input type="number" class="form-control" placeholder="Stock" aria-label="Stock">
+
+            <div class="input-group-append">
+                <button class="btn btn-outline-danger" type="button" data-role="delete-supplier">X</button>
+            </div>
+        </div>
+
+        <div class="input-group input-group-sm mb-1 d-none" data-role="consumer-placeholder">
+            <div class="input-group-prepend">
+                <span class="input-group-text" data-role="consumer-number">0</span>
+            </div>
+
+            <input type="number" class="form-control" placeholder="Demand" aria-label="Demand">
+
+            <div class="input-group-append">
+                <button class="btn btn-outline-danger" type="button" data-role="delete-consumer">X</button>
+            </div>
+        </div>
+        <!-- ##### -->
+
+        <form>
+            <!-- SUPPLIERS -->
+            <div class="form-group">
+                <h2 class="mb-3 text-center">Suppliers</h2>
+                <div class="container mb-3 w-75">
+                    <div data-role="suppliers-list">
+                        <div class="input-group input-group-sm mb-1" data-supplier-id="1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" data-role="supplier-number">1</span>
+                            </div>
+
+                            <input type="number" class="form-control" data-role="supplier-stock" placeholder="Stock" aria-label="Stock">
+
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-danger" type="button" data-role="delete-supplier" data-id="1">X</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <button type="button" class="btn btn-success text-center w-50" data-role="add-supplier">Add Supplier</button>
+                    </div>
+                </div>
+            </div>
+            <!-- ##### -->
+
+            <!-- CONSUMERS -->
+            <div class="form-group">
+                <h2 class="mb-3 text-center">Consumers</h2>
+                <div class="container mb-3 w-75">
+                    <div data-role="consumers-list">
+                        <div class="input-group input-group-sm mb-1" data-consumer-id="1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" data-role="consumer-number">1</span>
+                            </div>
+
+                            <input type="number" class="form-control" data-role="consumer-demand" placeholder="Demand" aria-label="Demand">
+
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-danger" type="button" data-role="delete-consumer" data-id="1">X</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <button type="button" class="btn btn-success text-center w-50" data-role="add-consumer">Add Consumer</button>
+                    </div>
+                </div>
+            </div>
+            <!-- ##### -->
+
+            <!-- SHIPMENT MATRIX -->
+            <div class="form-group">
+                <h2 class="mb-3 text-center">Shipment Matrix</h2>
+                <div class="container mb-3 w-75" data-role="shipment-matrix">
+                </div>
+            </div>
+            <!-- ##### -->
+
+            <div class="form-group">
+                <div class="text-center">
+                    <button type="button" id="submit-button" data-toggle="modal" data-target="#resultModal" class="btn btn-primary btn-lg w-75">Submit</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="modal fade bd-example-modal-lg" id="resultModal" tabindex="-1" role="dialog" aria-labelledby="resultModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="resultModalLabel">Solution and Route</h5>
+                    <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button> -->
+                </div>
+                <div class="modal-body" data-role="modal-body"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary w-100" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+    <script src="main.js"></script>
+</body>
+
+</html>

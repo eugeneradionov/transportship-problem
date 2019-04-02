@@ -13,7 +13,10 @@ FROM alpine:latest
 
 RUN adduser -D -g '' appuser
 
-COPY --from=builder /go/bin/app /app
+WORKDIR /app
+
+COPY --from=builder /go/bin/app .
+COPY --from=builder /go/src/app/public ./public
 
 USER appuser
 

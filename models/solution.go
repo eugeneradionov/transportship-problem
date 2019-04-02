@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"math"
@@ -32,7 +33,11 @@ func NewSolution(cond ProblemConditions) *Solution {
 
 func (s *Solution) Solve() error {
 	s.fixImbalance()
-	s.initData()
+	err := s.initData()
+	if err != nil {
+		return err
+	}
+
 	s.northWest()
 	log.Printf("[INFO] at Solution.Solve(): northWest completed: %v", s.route)
 
@@ -53,6 +58,8 @@ func (s *Solution) Solve() error {
 		}
 	}
 	log.Printf("[INFO] at Solution.Solve(): Found optimal solution: dual: %v, route: %v", s.pots, s.route)
+
+	s.restoreInitialConditions()
 
 	s.createRoute()
 	log.Printf("[INFO] at Solution.Solve(): Got solution: Route:{%v}", s.Route)
@@ -92,15 +99,21 @@ func (s *Solution) checkTransportCost() error {
 	return nil
 }
 
-func (s *Solution) initData() {
+func (s *Solution) initData() error {
 	s.numSup = len(s.Suppliers)
+	if s.numSup <= 0 {
+		return errors.New("there is must be at least one supplier")
+	}
+
 	s.numCons = len(s.Consumers)
+	if s.numCons <= 0 {
+		return errors.New("there is must be at least one consumer")
+	}
 
 	for i := range s.Consumers {
 		s.Consumers[i].Demand += elipsis
 	}
-
-	s.Suppliers[s.numSup-1].Stock += elipsis * float64(s.numSup)
+	s.Suppliers[s.numSup-1].Stock += elipsis * float64(s.numCons)
 
 	newTransportCost := make([][]float64, s.numSup)
 	for i := range newTransportCost {
@@ -112,7 +125,6 @@ func (s *Solution) initData() {
 			newTransportCost[i][j] = cost
 		}
 	}
-
 	s.TransportCost = newTransportCost
 
 	s.route = make([][]float64, s.numSup)
@@ -128,6 +140,8 @@ func (s *Solution) initData() {
 		}
 		s.pots[i] = sl
 	}
+
+	return nil
 }
 
 func (s *Solution) northWest() {
@@ -265,6 +279,13 @@ func (s *Solution) calcPotentials() error {
 	}
 
 	return nil
+}
+
+func (s *Solution) restoreInitialConditions() {
+	for i := range s.Consumers {
+		s.Consumers[i].Demand -= elipsis
+	}
+	s.Suppliers[s.numSup-1].Stock -= elipsis * float64(s.numCons)
 }
 
 func (s *Solution) createRoute() {

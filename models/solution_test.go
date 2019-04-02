@@ -361,7 +361,10 @@ func TestSolution_Solve(t *testing.T) {
 				numSup:            tt.fields.numSup,
 				numCons:           tt.fields.numCons,
 			}
-			s.Solve()
+			err := s.Solve()
+			if err != nil {
+				t.Error(err)
+			}
 
 			if s.Cost != 170 {
 				t.Errorf("Solution.Solve() s.Cost = %v want %v", s.Cost, 170)
@@ -485,7 +488,10 @@ func TestSolution_createRoute(t *testing.T) {
 				numSup:            tt.fields.numSup,
 				numCons:           tt.fields.numCons,
 			}
-			s.initData()
+			err := s.initData()
+			if err != nil {
+				t.Error(err)
+			}
 			s.northWest()
 
 			nOpt, err := s.notOptimal()
@@ -525,6 +531,111 @@ func TestSolution_createRoute(t *testing.T) {
 					t.Errorf("Solution.Solve() s.Route[%v].Cons.ID = %v want %v", i, node.Cons.ID, wNode.Cons.ID)
 				}
 			}
+		})
+	}
+}
+
+func TestSolution_restoreInitialConditions(t *testing.T) {
+	type fields struct {
+		ProblemConditions ProblemConditions
+		Route             []transportNode
+		Cost              float64
+		pivotN            int
+		pivotM            int
+		route             [][]float64
+		pots              [][]float64
+		numSup            int
+		numCons           int
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   ProblemConditions
+	}{
+		{fields: fields{
+			ProblemConditions: ProblemConditions{
+				Suppliers: []Supplier{
+					Supplier{
+						ID:    1,
+						Stock: 10,
+					},
+					Supplier{
+						ID:    2,
+						Stock: 20 + elipsis*2,
+					},
+				},
+				Consumers: []Consumer{
+					Consumer{
+						ID:     1,
+						Demand: 20 + elipsis,
+					},
+					Consumer{
+						ID:     2,
+						Demand: 10 + elipsis,
+					},
+				},
+				TransportCost: [][]float64{
+					[]float64{1, 2},
+					[]float64{2, 1},
+				},
+			},
+			numSup:  2,
+			numCons: 2,
+		},
+			want: ProblemConditions{
+				Suppliers: []Supplier{
+					Supplier{
+						ID:    1,
+						Stock: 10,
+					},
+					Supplier{
+						ID:    2,
+						Stock: 20,
+					},
+				},
+				Consumers: []Consumer{
+					Consumer{
+						ID:     1,
+						Demand: 20,
+					},
+					Consumer{
+						ID:     2,
+						Demand: 10,
+					},
+				},
+			}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := Solution{
+				ProblemConditions: tt.fields.ProblemConditions,
+				Route:             tt.fields.Route,
+				Cost:              tt.fields.Cost,
+				pivotN:            tt.fields.pivotN,
+				pivotM:            tt.fields.pivotM,
+				route:             tt.fields.route,
+				pots:              tt.fields.pots,
+				numSup:            tt.fields.numSup,
+				numCons:           tt.fields.numCons,
+			}
+			s.restoreInitialConditions()
+
+			for i, sup := range tt.fields.ProblemConditions.Suppliers {
+				got := sup.Stock
+				want := tt.want.Suppliers[i].Stock
+				if got != want {
+					t.Errorf("solution.restoreInitialConditions() invalid supplier stock: got: %v, want: %v", got, want)
+				}
+			}
+
+			for i, cons := range tt.fields.ProblemConditions.Consumers {
+				got := cons.Demand
+				want := tt.want.Consumers[i].Demand
+				if got != want {
+					t.Errorf("solution.restoreInitialConditions() invalid consumer demand: got: %v, want: %v", got, want)
+				}
+			}
+
 		})
 	}
 }
@@ -587,7 +698,10 @@ func TestSolution_initData(t *testing.T) {
 				numSup:            tt.fields.numSup,
 				numCons:           tt.fields.numCons,
 			}
-			s.initData()
+			err := s.initData()
+			if err != nil {
+				t.Error(err)
+			}
 
 			if s.numSup != len(tt.fields.ProblemConditions.Suppliers) {
 				t.Errorf("Solution.initData() = %v, want %v", s.numSup, len(tt.fields.ProblemConditions.Suppliers))
@@ -669,7 +783,10 @@ func TestSolution_northWest(t *testing.T) {
 				numSup:            tt.fields.numSup,
 				numCons:           tt.fields.numCons,
 			}
-			s.initData()
+			err := s.initData()
+			if err != nil {
+				t.Error(err)
+			}
 			s.northWest()
 
 			nwStartSolution := [][]float64{
@@ -792,7 +909,10 @@ func TestSolution_notOptimal(t *testing.T) {
 				numSup:            tt.fields.numSup,
 				numCons:           tt.fields.numCons,
 			}
-			s.initData()
+			err := s.initData()
+			if err != nil {
+				t.Error(err)
+			}
 			s.northWest()
 			got, err := s.notOptimal()
 			if err != nil {

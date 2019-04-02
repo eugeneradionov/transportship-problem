@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -13,10 +12,16 @@ import (
 	"github.com/gorilla/mux"
 )
 
+const (
+	STATIC_DIR = "./public/"
+)
+
 func main() {
 	r := mux.NewRouter()
-	r.HandleFunc("/", solve).Methods(http.MethodPost)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", (os.Getenv("PORT"))), r))
+
+	r.PathPrefix("/").Handler(http.FileServer(http.Dir(STATIC_DIR))).Methods(http.MethodGet)
+	r.HandleFunc("/solve", solve).Methods(http.MethodPost)
+	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), r))
 }
 
 func solve(w http.ResponseWriter, r *http.Request) {
