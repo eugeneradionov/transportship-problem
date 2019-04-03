@@ -15,6 +15,9 @@ $('#submit-button').on('click', function (event) {
         success: function (data) {
             renderResultMatrix(data)
         },
+        error: function(response) {
+            renderResultError(response)
+        }
     })
 })
 
@@ -117,6 +120,13 @@ function renderResultMatrix(data) {
     table.append(costRow)
 
     $('[data-role="modal-body"]').html(table)
+}
+
+function renderResultError(response) {
+    var error = response.responseJSON.error
+    var html = $('<h3 class="text-danger">Error: </h3>').append(error)
+
+    $('[data-role="modal-body"]').html(html)
 }
 
 function requestData() {
