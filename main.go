@@ -25,11 +25,11 @@ func main() {
 }
 
 func solve(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	var cond models.ProblemConditions
 
 	if err := json.NewDecoder(r.Body).Decode(&cond); err != nil {
-		httperrors.SendErrorJSON(w, err, http.StatusUnprocessableEntity)
+		httperrors.SendErrorJSON(w, err, http.StatusBadRequest)
 		return
 	}
 	log.Printf("[INFO] at main.solve(): Received Body: %+v", cond)

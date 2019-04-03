@@ -32,11 +32,12 @@ func NewSolution(cond ProblemConditions) *Solution {
 }
 
 func (s *Solution) Solve() error {
-	s.fixImbalance()
-	err := s.initData()
-	if err != nil {
+	if err := s.checkInputValues(); err != nil {
 		return err
 	}
+
+	s.fixImbalance()
+	s.initData()
 
 	s.northWest()
 	log.Printf("[INFO] at Solution.Solve(): northWest completed: %v", s.route)
@@ -85,30 +86,31 @@ func (s *Solution) fixImbalance() {
 	}
 }
 
-func (s *Solution) checkTransportCost() error {
+func (s *Solution) checkInputValues() error {
+	if len(s.Suppliers) <= 0 {
+		return errors.New("there is must be at least one supplier")
+	}
+
+	if len(s.Consumers) <= 0 {
+		return errors.New("there is must be at least one consumer")
+	}
+
 	if len(s.TransportCost) != len(s.Suppliers) {
-		return fmt.Errorf("invalid transport cost matrix: must be %v length, got %v", len(s.Suppliers), len(s.TransportCost))
+		return fmt.Errorf("invalid transport cost matrix: must have %v rows, got %v", len(s.Suppliers), len(s.TransportCost))
 	}
 
 	for _, row := range s.TransportCost {
 		if len(row) != len(s.Consumers) {
-			return fmt.Errorf("invalid transport cost matrix row: must be %v length, got %v", len(s.Consumers), len(row))
+			return fmt.Errorf("invalid transport cost matrix row: must have %v columns, got %v", len(s.Consumers), len(row))
 		}
 	}
 
 	return nil
 }
 
-func (s *Solution) initData() error {
+func (s *Solution) initData() {
 	s.numSup = len(s.Suppliers)
-	if s.numSup <= 0 {
-		return errors.New("there is must be at least one supplier")
-	}
-
 	s.numCons = len(s.Consumers)
-	if s.numCons <= 0 {
-		return errors.New("there is must be at least one consumer")
-	}
 
 	for i := range s.Consumers {
 		s.Consumers[i].Demand += elipsis
@@ -141,7 +143,6 @@ func (s *Solution) initData() error {
 		s.pots[i] = sl
 	}
 
-	return nil
 }
 
 func (s *Solution) northWest() {

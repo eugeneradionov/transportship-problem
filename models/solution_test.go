@@ -26,7 +26,7 @@ func TestNewSolution(t *testing.T) {
 	}
 }
 
-func TestSolution_checkTransportCost(t *testing.T) {
+func TestSolution_checkInputValues(t *testing.T) {
 	type fields struct {
 		ProblemConditions ProblemConditions
 	}
@@ -107,9 +107,9 @@ func TestSolution_checkTransportCost(t *testing.T) {
 		s := &Solution{
 			ProblemConditions: tt.fields.ProblemConditions,
 		}
-		got := s.checkTransportCost()
+		got := s.checkInputValues()
 		if got == nil {
-			t.Errorf("Solution.checkTransportCost() = \"%v\" want \"%v\"", got, "error")
+			t.Errorf("Solution.checkInputValues() = \"%v\" want \"%v\"", got, "error")
 		}
 	})
 
@@ -118,9 +118,9 @@ func TestSolution_checkTransportCost(t *testing.T) {
 		s := &Solution{
 			ProblemConditions: tt.fields.ProblemConditions,
 		}
-		got := s.checkTransportCost()
+		got := s.checkInputValues()
 		if got == nil {
-			t.Errorf("Solution.checkTransportCost() = \"%v\" want \"%v\"", got, "error")
+			t.Errorf("Solution.checkInputValues() = \"%v\" want \"%v\"", got, "error")
 		}
 	})
 
@@ -129,9 +129,9 @@ func TestSolution_checkTransportCost(t *testing.T) {
 		s := &Solution{
 			ProblemConditions: tt.fields.ProblemConditions,
 		}
-		got := s.checkTransportCost()
+		got := s.checkInputValues()
 		if got != nil {
-			t.Errorf("Solution.checkTransportCost() = \"%v\" want \"%v\"", got, nil)
+			t.Errorf("Solution.checkInputValues() = \"%v\" want \"%v\"", got, nil)
 		}
 	})
 }
@@ -488,10 +488,7 @@ func TestSolution_createRoute(t *testing.T) {
 				numSup:            tt.fields.numSup,
 				numCons:           tt.fields.numCons,
 			}
-			err := s.initData()
-			if err != nil {
-				t.Error(err)
-			}
+			s.initData()
 			s.northWest()
 
 			nOpt, err := s.notOptimal()
@@ -698,10 +695,7 @@ func TestSolution_initData(t *testing.T) {
 				numSup:            tt.fields.numSup,
 				numCons:           tt.fields.numCons,
 			}
-			err := s.initData()
-			if err != nil {
-				t.Error(err)
-			}
+			s.initData()
 
 			if s.numSup != len(tt.fields.ProblemConditions.Suppliers) {
 				t.Errorf("Solution.initData() = %v, want %v", s.numSup, len(tt.fields.ProblemConditions.Suppliers))
@@ -783,10 +777,7 @@ func TestSolution_northWest(t *testing.T) {
 				numSup:            tt.fields.numSup,
 				numCons:           tt.fields.numCons,
 			}
-			err := s.initData()
-			if err != nil {
-				t.Error(err)
-			}
+			s.initData()
 			s.northWest()
 
 			nwStartSolution := [][]float64{
@@ -909,10 +900,7 @@ func TestSolution_notOptimal(t *testing.T) {
 				numSup:            tt.fields.numSup,
 				numCons:           tt.fields.numCons,
 			}
-			err := s.initData()
-			if err != nil {
-				t.Error(err)
-			}
+			s.initData()
 			s.northWest()
 			got, err := s.notOptimal()
 			if err != nil {
