@@ -174,7 +174,8 @@ func (s *Solution) findPath(i, j int) ([][]int, error) {
 	}
 
 	if !s.findHorizontally(&path, i, j, i, j) {
-		return nil, fmt.Errorf("solution.findPath(): path error, cannot find path horizontally, path = %v, i = %v, j = %v", path, i, j)
+		log.Printf("solution.findPath(): path error, cannot find path horizontally, path = %v, i = %v, j = %v", path, i, j)
+		return nil, errors.New("path error: canont find path horizontally")
 	}
 
 	return path, nil
