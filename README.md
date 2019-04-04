@@ -1,7 +1,7 @@
 ## Heroku app: https://golang-transportship-problem.herokuapp.com/
 
 ```
-coverage: 92.3% of statements
+coverage: 91.6% of statements
 ```
 
 ```
