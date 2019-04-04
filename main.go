@@ -25,8 +25,9 @@ func main() {
 }
 
 func solve(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	var cond models.ProblemConditions
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
 	if err := json.NewDecoder(r.Body).Decode(&cond); err != nil {
 		httperrors.SendErrorJSON(w, err, http.StatusBadRequest)
